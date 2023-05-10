@@ -12,10 +12,10 @@
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
 
-ARG CONTAINERD_VERSION=v1.6.20
-ARG RUNC_VERSION=v1.1.5
+ARG CONTAINERD_VERSION=v1.4.0-beta.1
+ARG RUNC_VERSION=v1.0.0-rc90
 
-FROM golang:1.20-buster AS golang-base
+FROM golang:1.13-buster AS golang-base
 
 # Build containerd
 FROM golang-base AS containerd-dev
@@ -39,8 +39,8 @@ RUN apt-get update -y && apt-get install -y libseccomp-dev && \
 FROM golang-base AS snapshotter-dev
 ARG SNAPSHOTTER_BUILD_FLAGS
 ARG CTR_REMOTE_BUILD_FLAGS
-COPY . $GOPATH/src/github.com/marcoverl/containerd-remote-snapshotter
-RUN cd $GOPATH/src/github.com/marcoverl/containerd-remote-snapshotter && \
+COPY . $GOPATH/src/github.com/cvmfs/containerd-remote-snapshotter
+RUN cd $GOPATH/src/github.com/cvmfs/containerd-remote-snapshotter && \
     PREFIX=/out/ GO_BUILD_FLAGS=${SNAPSHOTTER_BUILD_FLAGS} make
 
 # Base image which contains containerd with default snapshotter
@@ -72,8 +72,8 @@ ENV CONTAINERD_SNAPSHOTTER=cvmfs
 ENTRYPOINT [ "/entrypoint.sh" ]
 
 # Image which can be used as a node image for KinD
-FROM kindest/node:v1.27.1
-#COPY --from=containerd-dev /out/bin/containerd /out/bin/containerd-shim-runc-v2 /usr/local/bin/
+FROM kindest/node:v1.18.0
+COPY --from=containerd-dev /out/bin/containerd /out/bin/containerd-shim-runc-v2 /usr/local/bin/
 COPY --from=snapshotter-dev /out/* /usr/local/bin/
 COPY ./script/config/ /
 RUN apt-get update -y && apt-get install --no-install-recommends -y fuse && \
