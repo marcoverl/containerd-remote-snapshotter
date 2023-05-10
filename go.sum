@@ -1,3 +1,5 @@
+github.com/containerd/stargz-snapshotter v0.14.3 h1:OTUVZoPSPs8mGgmQUE1dqw3WX/3nrsmsurW7UPLWl1U=
+github.com/containerd/stargz-snapshotter v0.14.3/go.mod h1:j2Ya4JeA5gMZJr8BchSkPjlcCEh++auAxp4nidPI6N0=
 github.com/containerd/cgroups v0.0.0-20190919134610-bf292b21730f/go.mod h1:OApqhQ4XNSNC13gXIwDjhOQxjWa/NxkwZXJ1EvqT0ko=
 github.com/containerd/cgroups v0.0.0-20200327175542-b44481373989 h1:ziD9Q8QdO0vybP3fYg5MQ+PqDAb61jEbdCsL2f5xXK4=
 github.com/containerd/cgroups v0.0.0-20200327175542-b44481373989/go.mod h1:CStdkl05lBnJej94BPFoJ7vB8cELKXwViS+dgfW0/M8=
