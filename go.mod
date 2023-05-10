@@ -1,6 +1,6 @@
 module github.com/marcoverl/containerd-remote-snapshotter
 
-go 1.16
+go 1.20
 
 require (
 	github.com/BurntSushi/toml v0.3.1
