@@ -32,7 +32,7 @@ import (
 	snbase "github.com/containerd/stargz-snapshotter/snapshot"
 	"github.com/sirupsen/logrus"
 
-	"github.com/cvmfs/containerd-remote-snapshotter/cvmfs"
+	"github.com/marcoverl/containerd-remote-snapshotter/cvmfs"
 )
 
 const (
