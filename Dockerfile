@@ -12,10 +12,10 @@
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
 
-ARG CONTAINERD_VERSION=v1.7.0-rc.2
-ARG RUNC_VERSION=v1.1.4
+ARG CONTAINERD_VERSION=v1.7.0
+ARG RUNC_VERSION=v1.1.5
 
-FROM golang:1.20.1-bullseye AS golang-base
+FROM golang:1.20.4-bullseye AS golang-base
 
 # Build containerd
 FROM golang-base AS containerd-dev
@@ -25,8 +25,15 @@ RUN apt-get update -y && apt-get install -y libbtrfs-dev libseccomp-dev && \
               https://github.com/containerd/containerd $GOPATH/src/github.com/containerd/containerd && \
     cd $GOPATH/src/github.com/containerd/containerd && \
     GO111MODULE=off make && DESTDIR=/out/ make install
-
-
+    
+# Build runc
+FROM golang-base AS runc-dev
+ARG RUNC_VERSION
+RUN apt-get update -y && apt-get install -y libseccomp-dev && \
+    git clone -b ${RUNC_VERSION} --depth 1 \
+              https://github.com/opencontainers/runc $GOPATH/src/github.com/opencontainers/runc && \
+    cd $GOPATH/src/github.com/opencontainers/runc && \
+    GO111MODULE=off make && make install PREFIX=/out/
 
 # Build stargz snapshotter
 FROM golang-base AS snapshotter-dev
@@ -36,15 +43,40 @@ COPY . $GOPATH/src/github.com/marcoverl/containerd-remote-snapshotter
 RUN cd $GOPATH/src/github.com/marcoverl/containerd-remote-snapshotter && \
     PREFIX=/out/ GO_BUILD_FLAGS=${SNAPSHOTTER_BUILD_FLAGS} make
 
+# Base image which contains containerd with default snapshotter
+# `docker-ce-cli` is used only for users to `docker login` to registries (e.g. DockerHub)
+# with configuring ~/.docker/config.json
+FROM golang-base AS containerd-base
+RUN apt-get update -y && apt-get --no-install-recommends install -y fuse \
+                                 apt-transport-https gnupg2 software-properties-common && \
+    curl -fsSL https://download.docker.com/linux/debian/gpg | apt-key add - && \
+    add-apt-repository \
+      "deb [arch=amd64] https://download.docker.com/linux/debian $(lsb_release -cs) stable" && \
+    apt-get update -y && apt-get --no-install-recommends install -y docker-ce-cli
+COPY --from=containerd-dev /out/bin/containerd /out/bin/containerd-shim-runc-v2 /usr/local/bin/
+COPY --from=runc-dev /out/sbin/* /usr/local/sbin/
 
+# Base image which contains containerd with stargz snapshotter
+FROM containerd-base AS snapshotter-base
+COPY --from=snapshotter-dev /out/* /usr/local/bin/
+RUN ln -s /usr/local/bin/ctr-remote /usr/local/bin/ctr
 
+# Image which can be used as all-in-one single node demo environment
+FROM snapshotter-base AS cind
+COPY ./script/config/ /
+COPY ./script/cind/ /
+VOLUME /var/lib/containerd
+VOLUME /var/lib/containerd-cvmfs-grpc
+VOLUME /run/containerd-cvmfs-grpc
+ENV CONTAINERD_SNAPSHOTTER=cvmfs
+ENTRYPOINT [ "/entrypoint.sh" ]
 
 # Image which can be used as a node image for KinD
-FROM kindest/node:v1.26.0
+FROM kindest/node:v1.27.0
 COPY --from=containerd-dev /out/bin/containerd /out/bin/containerd-shim-runc-v2 /usr/local/bin/
 COPY --from=snapshotter-dev /out/* /usr/local/bin/
 COPY ./script/config/ /
-RUN apt-get update -y && apt-get install --no-install-recommends -y fuse && \
+RUN apt-get update -y && apt-get install --no-install-recommends -y fuse3 && \
     systemctl enable cvmfs-snapshotter
 ENTRYPOINT [ "/usr/local/bin/entrypoint", "/sbin/init" ]
 
