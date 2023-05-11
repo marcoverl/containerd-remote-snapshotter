@@ -41,5 +41,5 @@ ARG SNAPSHOTTER_BUILD_FLAGS
 ARG CTR_REMOTE_BUILD_FLAGS
 COPY . $GOPATH/src/github.com/marcoverl/containerd-remote-snapshotter
 # RUN cd $GOPATH/src/github.com/marcoverl/containerd-remote-snapshotter && \
-    PREFIX=/out/ GO_BUILD_FLAGS=${SNAPSHOTTER_BUILD_FLAGS} make
+#    PREFIX=/out/ GO_BUILD_FLAGS=${SNAPSHOTTER_BUILD_FLAGS} make
 
