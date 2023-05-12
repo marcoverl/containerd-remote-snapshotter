@@ -63,7 +63,7 @@ nodes:
 $ kind create cluster --config kind-mount-cvmfs.yaml --image cvmfs-kind-node
 ```
 
-At this point, it is possible to use `kubectl` to start containers. The directory examples contains recipes to launch pods running images used for the tests described in doi:10.3389/fdata.2021.673163
+At this point, it is possible to use `kubectl` to start containers. The directory examples contains recipes to launch pods running images used for the tests described in doi:10.3389/fdata.2021.673163.
 If the filesystem of the container is available on the local filesystem used by the plugin, it won't download the tarball, but just mount the local filesystem.
 
 ### Many thanks
