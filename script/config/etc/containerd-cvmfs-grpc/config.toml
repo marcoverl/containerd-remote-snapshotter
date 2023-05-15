@@ -1,8 +1,8 @@
 version = 2
 
 # Source of image layers
-repository = "unpacked.cern.ch"
-absolute-mountpoint = "/cvmfs/unpacked.cern.ch"
+repository = "unpacked.infn.it"
+#absolute-mountpoint = "/cvmfs/unpacked.cern.ch"
 
 # Ask containerd to use this particular snapshotter
 [plugins."io.containerd.grpc.v1.cri".containerd]
