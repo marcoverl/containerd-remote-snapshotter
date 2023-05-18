@@ -63,6 +63,10 @@ nodes:
   extraMounts:
     - hostPath: /cvmfs/unpacked.infn.it
       containerPath: /cvmfs/unpacked.infn.it
+- role: worker
+  extraMounts:
+    - hostPath: /cvmfs/unpacked.infn.it
+      containerPath: /cvmfs/unpacked.infn.it
 
 $ kind create cluster --config kind-mount-cvmfs.yaml --image cvmfs-kind-node
 ```
