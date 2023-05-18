@@ -27,6 +27,10 @@ It is necessary to configure containerd to use this new remote snapshotter.
 A basic configuration would look like:
 
 ```
+# Source of image layers
+repository = "unpacked.infn.it"
+absolute-mountpoint = "/cvmfs/unpacked.infn.it"
+
 # tell containerd to use this particular snapshotter
 [plugins."io.containerd.grpc.v1.cri".containerd]
   snapshotter = "cvmfs-snapshotter"
@@ -57,8 +61,8 @@ apiVersion: kind.x-k8s.io/v1alpha4
 nodes:
 - role: control-plane
   extraMounts:
-    - hostPath: /cvmfs/unpacked.cern.ch
-      containerPath: /cvmfs/unpacked.cern.ch
+    - hostPath: /cvmfs/unpacked.infn.it
+      containerPath: /cvmfs/unpacked.infn.it
 
 $ kind create cluster --config kind-mount-cvmfs.yaml --image cvmfs-kind-node
 ```
