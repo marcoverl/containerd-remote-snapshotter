@@ -25,7 +25,7 @@ RUN apt-get update -y && apt-get install -y libbtrfs-dev libseccomp-dev && \
     cd $GOPATH/src/github.com/containerd/containerd && \
     GO111MODULE=off make && DESTDIR=/out/ make install
     
-# Build stargz snapshotter
+# Build the cvmfs snapshotter
 FROM golang-base AS snapshotter-dev
 ARG SNAPSHOTTER_BUILD_FLAGS
 ARG CTR_REMOTE_BUILD_FLAGS
