@@ -23,14 +23,17 @@ This remote snapshotter communicates with `containerd` via gRPC over linux socke
 The default socket is `/run/containerd-cvmfs-grpc/containerd-cvmfs-grpc.sock`.
 The socket is created automatically by the snapshotter if it does not exists.
 
-It is necessary to configure containerd to use this new remote snapshotter.
-A basic configuration would look like:
+A basic configuration for the snapshotter would look like:
 
 ```
 # Source of image layers
 repository = "unpacked.infn.it"
 absolute-mountpoint = "/cvmfs/unpacked.infn.it"
+```
 
+It is then necessary to configure containerd to use this new remote snapshotter, by adding to the default configuration file the following lines:
+
+```
 # tell containerd to use this particular snapshotter
 [plugins."io.containerd.grpc.v1.cri".containerd]
   snapshotter = "cvmfs-snapshotter"
