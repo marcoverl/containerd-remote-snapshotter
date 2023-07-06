@@ -57,7 +57,7 @@ Feel free to fill issues and pull requests.
 This plugin is tested using `kind`.
 
 ```
-$ docker build -t cvmfs-kind-node https://github.com/marcoverl/containerd-remote-snapshotter.git
+$ docker build -t cvmfs-kind-node:infn https://github.com/marcoverl/containerd-remote-snapshotter.git
 $ cat kind-mount-cvmfs.yaml
 kind: Cluster
 apiVersion: kind.x-k8s.io/v1alpha4
@@ -71,7 +71,7 @@ nodes:
     - hostPath: /cvmfs/unpacked.infn.it
       containerPath: /cvmfs/unpacked.infn.it
 
-$ kind create cluster --config kind-mount-cvmfs.yaml --image cvmfs-kind-node
+$ kind create cluster --config kind-mount-cvmfs.yaml --image cvmfs-kind-node:infn
 ```
 
 At this point, it is possible to use `kubectl` to start containers. The directory examples contains recipes to launch pods running images used for the tests described in doi:10.3389/fdata.2021.673163.
