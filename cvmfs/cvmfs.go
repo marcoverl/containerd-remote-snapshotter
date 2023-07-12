@@ -70,21 +70,14 @@ func (fs *Filesystem) Mount(ctx context.Context, mountpoint string, labels map[s
 		return err
 	}
 	log.G(ctx).WithField("layer digest", digest).Debug("cvmfs: Layer present in CVMFS")
-	
-        // Check if layer is already mounted
-	fs.mountedLayersLock.Lock()
-	defer fs.mountedLayersLock.Unlock()
-	if mountedPath, exists := fs.mountedLayers[mountpoint]; exists && mountedPath == path {
-		log.G(ctx).WithField("layer digest", digest).WithField("mountpoint", mountpoint).Debug("cvmfs: Layer already mounted")
-		return nil
-	}
-	
 	err := syscall.Mount(path, mountpoint, "", syscall.MS_BIND, "")
 	if err != nil {
 		log.G(ctx).WithError(err).WithField("layer digest", digest).WithField("mountpoint", mountpoint).Debug("cvmfs: Error in bind mounting the layer.")
 		return err
 	}
-	
+        
+	fs.mountedLayersLock.Lock()
+	defer fs.mountedLayersLock.Unlock()
 	fs.mountedLayers[mountpoint] = path
 	return nil
 }
