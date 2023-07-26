@@ -53,6 +53,15 @@ func NewFilesystem(ctx context.Context, root string, config *Config) (snapshot.F
 	return &Filesystem{fsAbsoluteMountpoint: absolutePath, mountedLayers: mountedLayersMap}, nil
 }
 
+func isPathMounted(fs *Filesystem, path string) bool {
+    for _, mountedPath := range fs.mountedLayers {
+        if mountedPath == path {
+            return true
+        }
+    }
+    return false
+}
+
 func (fs *Filesystem) Mount(ctx context.Context, mountpoint string, labels map[string]string) error {
 	log.G(ctx).Info("Mount layer from cvmfs")
 	digest, ok := labels[targetDigestLabelCRI]
@@ -62,14 +71,6 @@ func (fs *Filesystem) Mount(ctx context.Context, mountpoint string, labels map[s
 		return err
 	}
 	digest = strings.Split(digest, ":")[1]
-
-	// Check if the digest is the one to avoid mounting
-	if digest == "4f4fb700ef54461cfa02571ae0db9a0dc1e0cdb5577484a6d75e68dc38e8acc1" {
-		err := fmt.Errorf("mounting layer %s is not allowed", digest)
-		log.G(ctx).WithError(err).WithField("layer digest", digest).Debug("cvmfs: Layer mounting not allowed")
-		return err
-	}
-	
 	firstTwo := digest[0:2]
 	path := filepath.Join(fs.fsAbsoluteMountpoint, ".layers", firstTwo, digest, "layerfs")
 	if _, err := os.Stat(path); os.IsNotExist(err) {
@@ -78,6 +79,14 @@ func (fs *Filesystem) Mount(ctx context.Context, mountpoint string, labels map[s
 		return err
 	}
 	log.G(ctx).WithField("layer digest", digest).Debug("cvmfs: Layer present in CVMFS")
+	
+        // Check if the layer is already mounted
+        if isPathMounted(fs, path) {
+            err := fmt.Errorf("layer %s is already mounted", digest)
+	    log.G(ctx).WithError(err).WithField("layer digest", digest).Debug("cvmfs: Layer was already mounted")
+            return err
+	}
+	
 	err := syscall.Mount(path, mountpoint, "", syscall.MS_BIND, "")
 	if err != nil {
 		log.G(ctx).WithError(err).WithField("layer digest", digest).WithField("mountpoint", mountpoint).Debug("cvmfs: Error in bind mounting the layer.")
