@@ -39,5 +39,7 @@ COPY --from=containerd-dev /out/usr/local/bin/containerd /out/usr/local/bin/cont
 COPY --from=snapshotter-dev /out/* /usr/local/bin/
 COPY ./script/config/ /
 RUN apt-get update -y && apt-get install --no-install-recommends -y fuse3 && \
-    systemctl enable cvmfs-snapshotter
+    systemctl enable cvmfs-snapshotter && \
+    wget -nv -qO- https://github.com/containerd/nerdctl/releases/download/v1.4.0/nerdctl-1.4.0-linux-amd64.tar.gz | \
+    tar -C /usr/local/bin
 ENTRYPOINT [ "/usr/local/bin/kind-entrypoint.sh", "/usr/local/bin/entrypoint", "/sbin/init" ]
