@@ -38,8 +38,8 @@ FROM kindest/node:v1.27.1
 COPY --from=containerd-dev /out/usr/local/bin/containerd /out/usr/local/bin/containerd-shim-runc-v2 /usr/local/bin/
 COPY --from=snapshotter-dev /out/* /usr/local/bin/
 COPY ./script/config/ /
-RUN apt-get update -y && apt-get install --no-install-recommends -y fuse3 && \
+RUN apt-get update -y && apt-get install --no-install-recommends -y fuse3 wget && \
     systemctl enable cvmfs-snapshotter && \
     wget -nv -qO- https://github.com/containerd/nerdctl/releases/download/v1.4.0/nerdctl-1.4.0-linux-amd64.tar.gz | \
-    tar -C /usr/local/bin
+    tar -C /usr/local/bin -zx
 ENTRYPOINT [ "/usr/local/bin/kind-entrypoint.sh", "/usr/local/bin/entrypoint", "/sbin/init" ]
